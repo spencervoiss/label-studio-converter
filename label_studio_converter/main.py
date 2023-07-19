@@ -1,12 +1,16 @@
-import os
+import argparse
 import io
 import logging
-import argparse
+import os
+
+# from label_studio_converter.imports import voc as import_voc
+from imports import voc as import_voc
 
 from label_studio_converter.converter import Converter, Format, FormatNotSupportedError
 from label_studio_converter.exports.csv import ExportToCSV
+from label_studio_converter.imports import coco as import_coco
+from label_studio_converter.imports import yolo as import_yolo
 from label_studio_converter.utils import ExpandFullPath
-from label_studio_converter.imports import yolo as import_yolo, coco as import_coco
 
 logging.basicConfig(level=logging.INFO)
 
@@ -98,6 +102,7 @@ def get_all_args():
     import_format = parser_import.add_subparsers(dest='import_format')
     import_yolo.add_parser(import_format)
     import_coco.add_parser(import_format)
+    import_voc.add_parser(import_format)
 
     return parser.parse_args()
 
@@ -176,6 +181,16 @@ def imports(args):
             out_type=args.out_type,
             image_root_url=args.image_root_url,
             point_width=args.point_width,
+        )
+    
+    elif args.import_format == 'voc':
+        import_voc.convert_voc_to_ls(
+            input_dir=args.input,
+            out_file=args.output,
+            to_name=args.to_name,
+            from_name=args.from_name,
+            out_type=args.out_type,
+            image_root_url=args.image_root_url,
         )
     else:
         raise FormatNotSupportedError()
